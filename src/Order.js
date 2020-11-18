@@ -1,25 +1,37 @@
 import React from 'react'
 import './Order.css'
-import moment from "moment";
+import { useHistory } from "react-router-dom";
+import { useStateValue } from "./StateProvider";
 import CheckoutProduct from "./CheckoutProduct";
 import CurrencyFormat from "react-currency-format";
+import { getBasketTotal } from './reducer';
 
 function Order({ order }) {
+    const [{ basket }, dispatch] = useStateValue();
+    const history= useHistory();
+    const handleChange =() => {
+
+        history.push("/")
+
+        dispatch({
+            type: 'EMPTY_BASKET'
+        })
+    }
+    
     return (
         <div className='order'>
-            <h2>Order</h2>
-            <p>{moment.unix(order.data.created).format("MMMM Do YYYY, h:mma")}</p>
+            <h2>Your Orders</h2>
+           
             <p className="order__id">
-                <small>{order.id}</small>
+                <small>{basket.id}</small>
             </p>
-            {order.data.basket?.map(item => (
+            {basket.map(item => (
                 <CheckoutProduct
                     id={item.id}
                     title={item.title}
                     image={item.image}
                     price={item.price}
                     rating={item.rating}
-                    hideButton
                 />
             ))}
             <CurrencyFormat
@@ -27,11 +39,14 @@ function Order({ order }) {
                     <h3 className="order__total">Order Total: {value}</h3>
                 )}
                 decimalScale={2}
-                value={order.data.amount / 100}
+                value={getBasketTotal(basket)}
                 displayType={"text"}
                 thousandSeparator={true}
-                prefix={"$"}
+                prefix={"₹"}
             />   
+            <button className="button__styles" onClick={handleChange}>
+                    Go To Home
+            </button>
         </div>
     )
 }
